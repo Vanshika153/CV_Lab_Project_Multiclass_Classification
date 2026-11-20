@@ -219,7 +219,17 @@ Each notebook is tested on ISIC 2019 and on the combined HAM10000 + ISIC 2019 da
 - `EffNetB2_ResNet50_test.ipynb` – EfficientNet-B2 + ResNet-50 ensemble with data-leakage control (**our proposed model**).
 - `EffNetB2_ResNet50_Calibrated_test.ipynb` – Calibrated EfficientNet-B2 + ResNet-50 ensemble (Keras/TensorFlow).
 - `EffNetB2_DenseNet121_test.ipynb` – EfficientNet-B2 + DenseNet121 ensemble with data-leakage control.
+  
+## Data Folder Layout
+Place the data in the project folder before running any notebook:
 
+```data/
+├── HAM10000_metadata.csv
+├── images/                      # HAM10000 .jpg files
+└── ISIC2019_Dataset/
+    ├── AK/ BCC/ BKL/ DF/ MEL/ NV/ VASC/
+    └── ISIC_2019_Training_Metadata.csv
+```
 
 ## Technologies Used
 
@@ -232,6 +242,47 @@ Each notebook is tested on ISIC 2019 and on the combined HAM10000 + ISIC 2019 da
 - Matplotlib
 - Scikit-learn
 - Grad-CAM
+
+## Project Structure
+
+```CV_Lab_Project_Multiclass_Classification/
+├── README.md
+├── requirements.txt
+├── .gitignore
+│
+├── EffNetB2_ResNet50_test.ipynb              # proposed model: train + HAM10000 / ISIC2019 evaluation + Grad-CAM
+├── EffNetB2_ResNet50_combined.ipynb          # proposed model trained on combined HAM10000 + ISIC2019
+├── EffNetB2_ResNet50_Calibrated_test.ipynb   # ensemble with probability calibration
+├── EffNetB2_DenseNet121_test.ipynb           # alternative ensemble (EfficientNet-B2 + DenseNet121)
+├── EfficientCapsNet_test.ipynb               # base model: EfficientCapsNet on HAM10000
+├── EfficientCapsNet_combined.ipynb           # base model: EfficientCapsNet on combined data
+│
+├── Results_Base_Model/
+│   ├── accuracy_loss_curves.png
+│   ├── base_cm_combined.png
+│   ├── base_cm_ham10000_test.png
+│   ├── base_cm_isic2019_test.png
+│   ├── base_gradcam.png
+│   ├── base_roc_ham10000_test.png
+│   └── base_roc_isic2019_test.png
+│
+├── Results_Proposed_Model/
+│   ├── cm_ens_combined.png
+│   ├── cm_ens_ham10000.png
+│   ├── cm_ens_isic2019.png
+│   ├── ens_curves.png
+│   └── gradcam_sample.png
+│
+├── data/                    # not in repo: download separately
+│   ├── HAM10000_metadata.csv
+│   ├── images/              # HAM10000 images
+│   └── ISIC2019_Dataset/
+│
+├── models/                  # not in repo: created during training (or download weights)
+│   └── *.pth
+│
+└── research_results/        # not in repo: created by the notebooks (split CSVs, plots)
+```
 
 ## Limitations and Future Improvements
 
