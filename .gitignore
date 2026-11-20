@@ -1,0 +1,9 @@
+data/
+models/
+research_results/
+*.pth
+*.keras
+*.h5
+.ipynb_checkpoints/
+__pycache__/
+.DS_Store
