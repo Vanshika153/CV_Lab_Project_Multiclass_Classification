@@ -1,71 +1,68 @@
 # CV_Lab_Project_Multiclass_Classification
-# Skin Lesion Classification Using EfficientNet-B2 and ResNet-50 Ensemble
+# Skin Lesion Classification using EfficientNet-B2 and ResNet-50
 
-## 📌 Project Overview
+## About the Project
 
-This project presents a deep learning-based approach for **seven-class skin lesion classification** using a heterogeneous ensemble of EfficientNet-B2 and ResNet-50.
+Skin lesion classification is an important application of deep learning in medical image analysis. However, building a model that can accurately identify different types of skin lesions is challenging, especially when the dataset contains an unequal number of images for different classes.
 
-The primary objective is to improve skin lesion classification performance while addressing challenges such as class imbalance, data leakage, and domain shift between different dermoscopic image datasets.
+In this project, we developed a deep learning-based skin lesion classification system that uses **EfficientNet-B2 and ResNet-50 together** to classify dermoscopic images into seven different categories.
 
-The proposed model combines predictions from two independently trained convolutional neural networks using an equal-weight probability averaging strategy.
+Instead of relying on a single model, we combined the predictions of both networks using an ensemble approach. We also focused on handling class imbalance, avoiding data leakage, and testing how well the model performs on images from a different dataset.
 
-The ensemble is evaluated against a re-implementation of EfficientCapsNet under a leakage-controlled evaluation protocol, including external testing on unseen ISIC 2019 images.
+Our main goal was to build a model that not only performs well on the training dataset but can also generalize to previously unseen images.
 
-## 🎯 Objectives
+## What We Tried to Achieve
 
-- Develop an effective deep learning model for multiclass skin lesion classification.
-- Improve classification performance using an EfficientNet-B2 and ResNet-50 ensemble.
-- Address class imbalance through training-only weighted sampling and augmentation.
-- Prevent data leakage using lesion-grouped, class-stratified dataset splitting.
-- Evaluate generalization using an independent ISIC 2019 external test set.
-- Compare the proposed ensemble against EfficientCapsNet and other ensemble configurations.
+- Classify skin lesions into seven different categories.
+- Improve classification performance by combining two CNN architectures.
+- Handle class imbalance using weighted sampling and data augmentation.
+- Reduce data leakage through lesion-based dataset splitting.
+- Test the model on an external dataset to check its generalization ability.
+- Compare our approach with an implementation of EfficientCapsNet.
+- Understand model predictions using Grad-CAM visualizations.
 
-## 🧠 Model Architecture
+## Models Used
 
-The proposed architecture consists of two independently trained pretrained CNN models:
+We used two pretrained deep learning models and combined their predictions.
 
-### 1. EfficientNet-B2
-- Uses ImageNet-pretrained weights.
-- Classifier replaced with a seven-class linear classification layer.
-- Extracts discriminative visual features from skin lesion images.
-- Contains approximately 7.71 million parameters.
+**1. EfficientNet-B2**
 
-### 2. ResNet-50
-- Uses ImageNet-pretrained weights.
-- Final fully connected layer replaced with a seven-class classifier.
-- Uses residual connections to learn deeper image representations.
-- Contains approximately 23.52 million parameters.
+EfficientNet-B2 is used to extract important visual features from skin lesion images. We used ImageNet-pretrained weights and replaced its final classification layer to predict the seven lesion classes.
 
-### 3. Ensemble Strategy
+**2. ResNet-50**
 
-The softmax probability outputs of both models are combined using an equal-weight average:
+ResNet-50 is another pretrained CNN architecture that uses residual connections to learn complex image features. Its final classification layer was also modified for our seven-class problem.
 
-`P_final = (P_EfficientNet-B2 + P_ResNet-50) / 2`
+**3. Ensemble Model**
 
-The final predicted class is selected using the argmax operation.
+Both models were trained independently. Their prediction probabilities were then averaged to obtain the final prediction.
 
-No additional tuned ensemble weights, thresholds, or class multipliers are used in the final model.
+The formula used was:
 
-## 📂 Datasets
+`Final Prediction = (EfficientNet-B2 + ResNet-50) / 2`
 
-The project uses two publicly available dermoscopic image datasets:
+This allowed us to combine the predictions of two different architectures without introducing additional tuned ensemble weights.
 
-### HAM10000
-- Total images: 10,015
-- Seven skin lesion classes.
-- Used for model training, validation, and in-dataset testing.
+## Dataset
 
-### ISIC 2019
-- Original images: 25,331
-- Squamous Cell Carcinoma (SCC) class excluded to maintain a seven-class classification task.
-- Images overlapping with HAM10000 removed using image IDs.
-- Remaining 14,885 images used exclusively for external evaluation.
+We worked with two publicly available dermoscopic image datasets:
 
-### Classification Categories
+**HAM10000**
+- Contains 10,015 dermoscopic images.
+- Includes seven different skin lesion categories.
+- Used for training, validation, and initial testing.
 
-| Label | Skin Lesion Category |
+**ISIC 2019**
+- Originally contains 25,331 images across eight categories.
+- The SCC category was excluded to maintain consistency with the seven classes in HAM10000.
+- Duplicate images already present in HAM10000 were removed.
+- The remaining 14,885 images were used for external testing.
+
+### Classes Covered
+
+| Label | Category |
 |---|---|
-| akiec | Actinic Keratoses and Intraepithelial Carcinoma |
+| akiec | Actinic Keratoses |
 | bcc | Basal Cell Carcinoma |
 | bkl | Benign Keratosis-like Lesions |
 | df | Dermatofibroma |
@@ -73,79 +70,78 @@ The project uses two publicly available dermoscopic image datasets:
 | nv | Melanocytic Nevi |
 | vasc | Vascular Lesions |
 
-## ⚙️ Methodology
+## How We Approached the Problem
 
-### 1. Data Preprocessing
-- Resize images to 224 × 224 pixels.
-- Apply Shades-of-Gray colour constancy (Minkowski p = 6).
-- Normalize pixel values to the range [0, 1].
-- Apply ImageNet normalization separately for each backbone.
+**1. Image Preprocessing**
 
-### 2. Data Splitting
+Before feeding images into the models, we:
+- Resized images to 224 × 224 pixels.
+- Applied Shades-of-Gray colour constancy to reduce lighting and colour variations.
+- Normalized pixel values.
+- Applied ImageNet normalization for both models.
 
-HAM10000 is divided using a lesion-grouped, class-stratified split with random seed 42.
+**2. Dataset Splitting**
 
-| Dataset Split | Images |
+We divided HAM10000 into training, validation, and testing sets using lesion-based grouping and class stratification.
+
+| Split | Number of Images |
 |---|---:|
 | Training | 7,153 |
 | Validation | 1,431 |
 | Testing | 1,431 |
 
-No lesion is shared between the three partitions.
+This helped ensure that images belonging to the same lesion were not distributed across different splits.
 
-### 3. Data Augmentation
+**3. Data Augmentation**
 
-Augmentation is applied exclusively to the training dataset.
+Since medical image datasets often contain limited samples for certain classes, we applied augmentation to the training images.
 
-Techniques include:
+Some techniques included:
 - Horizontal and vertical flipping.
+- Rotation and scaling.
 - Random affine transformations.
-- Rotation (±30°).
-- Translation (10%).
-- Scaling (0.85–1.15).
-- Shearing (10°).
-- Colour jitter for brightness, contrast, saturation, and hue.
+- Brightness, contrast, and colour adjustments.
 
-### 4. Class Imbalance Handling
+**4. Handling Class Imbalance**
 
-A weighted random sampler is used to address the imbalance between lesion categories.
+Not all skin lesion categories had the same number of images. To avoid the model becoming biased towards frequently occurring classes, we used a weighted random sampler based on class frequency.
 
-Sampling weights are inversely proportional to class frequency and calculated using the training split only.
+**5. Model Training**
 
-### 5. Model Training
+Both models were trained independently using the following setup:
 
-Both networks are independently trained using:
-- Optimizer: AdamW
-- Learning rate: 0.0001
-- Weight decay: 0.0001
-- Batch size: 32
-- Loss function: Cross-Entropy with label smoothing (0.1)
-- Learning rate scheduler: Cosine Annealing
-- Maximum epochs: 50
-- Early stopping: Patience of 10 epochs
-- Random seed: 42
+| Parameter | Value |
+|---|---|
+| Framework | PyTorch |
+| Optimizer | AdamW |
+| Learning Rate | 0.0001 |
+| Batch Size | 32 |
+| Loss Function | Cross-Entropy with Label Smoothing |
+| Scheduler | Cosine Annealing |
+| Maximum Epochs | 50 |
+| Early Stopping Patience | 10 |
 
-The best checkpoint is selected using validation balanced accuracy.
+The best model checkpoints were selected using validation balanced accuracy.
 
-### 6. Explainability
+**6. Model Explainability**
 
-Grad-CAM (Gradient-weighted Class Activation Mapping) is used to visualize the image regions influencing model predictions.
+We also used Grad-CAM (Gradient-weighted Class Activation Mapping) to visualize which parts of an image influenced the model's predictions.
 
-Grad-CAM visualizations are generated for both EfficientNet-B2 and ResNet-50 to examine their attention towards lesion regions.
+This helped us examine whether the models were focusing on the lesion regions while making predictions.
 
-## 📊 Experimental Results
+## Results
 
-The proposed ensemble is compared with the re-implemented EfficientCapsNet under the same HAM10000-only training protocol.
+We compared our proposed ensemble with a re-implementation of EfficientCapsNet.
 
-### Performance Comparison
+The following results were obtained:
 
-| Evaluation Dataset | EfficientCapsNet Accuracy | Proposed Ensemble Accuracy |
+| Dataset | EfficientCapsNet | Our Ensemble |
 |---|---:|---:|
 | HAM10000 Test | 40.53% | **83.10%** |
 | ISIC 2019 External | 28.87% | **60.74%** |
 | Combined Test | 29.89% | **62.70%** |
 
-### Additional Metrics
+### Other Evaluation Metrics
 
 | Dataset | Balanced Accuracy | Macro F1-Score |
 |---|---:|---:|
@@ -153,85 +149,51 @@ The proposed ensemble is compared with the re-implemented EfficientCapsNet under
 | ISIC 2019 | 43.18% | 42.70% |
 | Combined | 44.94% | 44.79% |
 
-The proposed ensemble achieves improvements over the re-implemented EfficientCapsNet across all three evaluation datasets.
+### What We Observed
 
-**Key findings:**
-- Achieved 83.10% accuracy on the HAM10000 held-out test set.
-- Achieved 60.74% accuracy on 14,885 unseen ISIC 2019 images.
-- Improved external test accuracy by approximately 31.87 percentage points over the re-implemented baseline.
-- Outperformed the compared models in accuracy across all three evaluation sets.
-- Demonstrated that external domain shift remains a significant challenge for skin lesion classification.
+- The ensemble performed better than the re-implemented EfficientCapsNet on all three evaluation datasets.
+- Combining EfficientNet-B2 and ResNet-50 improved accuracy compared to using either network individually.
+- Performance dropped on the external ISIC 2019 dataset, showing that domain differences between datasets remain a major challenge.
+- Grad-CAM helped us visualize the regions that contributed to the model's predictions.
 
-*Note: These results are specific to the experimental protocol described in the research paper. The reported comparison is against our re-implementation of EfficientCapsNet, not a direct reproduction of the original paper's reported 72.75% accuracy.*
+*Note: The comparison is with our re-implementation of EfficientCapsNet under the same evaluation protocol. It should not be interpreted as a direct comparison with the 72.75% accuracy reported in the original paper.*
 
-## 🔍 Evaluation Metrics
-
-The following metrics are used to evaluate model performance:
-
-- **Accuracy:** Measures the proportion of correctly classified images.
-- **Balanced Accuracy:** Accounts for class imbalance by averaging recall across classes.
-- **Precision:** Measures the proportion of correct positive predictions.
-- **Recall:** Measures how many actual class instances are correctly identified.
-- **Macro F1-Score:** Calculates the average F1-score across all classes.
-- **Weighted F1-Score:** Calculates the F1-score weighted by class support.
-
-Additional evaluation includes:
-- Confusion matrices.
-- One-vs-rest ROC curves.
-- Training and validation curves.
-- Double-fault and disagreement rates.
-- Grad-CAM visualizations.
-
-## ⚠️ Limitations
-
-- Experiments use a single random seed and dataset split.
-- Performance decreases on the external ISIC 2019 dataset due to domain shift.
-- Minority classes have relatively few test samples.
-- Same-patient leakage across different lesions cannot be completely excluded because lesion IDs are not patient IDs.
-- No clinical validation has been performed.
-- Model inference latency and computational complexity have not been benchmarked.
-- The task is limited to seven lesion categories.
-
-## 🚀 Future Scope
-
-Potential improvements include:
-
-- Exploring hybrid CNN-Transformer architectures such as EfficientNet-B2 + Swin Transformer.
-- Improving domain generalization through stronger augmentation and domain-robust training.
-- Evaluating additional external datasets.
-- Applying perceptual-hash-based near-duplicate filtering.
-- Performing repeated grouped cross-validation with confidence intervals.
-- Conducting controlled ablation studies.
-- Measuring inference latency and computational efficiency.
-
-## 🛠️ Technologies Used
+## Technologies Used
 
 - Python
 - PyTorch
 - Torchvision
-- PyTorch Image Models (timm)
+- TIMM (PyTorch Image Models)
 - NumPy
 - Pandas
 - Matplotlib
 - Scikit-learn
 - Grad-CAM
 
-## 👩‍💻 Authors
+## Limitations and Future Improvements
+
+Although the ensemble showed promising results, there are still areas that can be improved.
+
+Some limitations of the current work include:
+- The experiments were conducted using a single random seed and dataset split.
+- Performance decreased when evaluated on the external dataset.
+- Some lesion categories had very few test images.
+- Further testing is needed to establish how well the model generalizes across different clinical settings.
+- The model has not undergone clinical validation.
+
+In the future, we would like to explore:
+- Combining CNN architectures with Vision Transformers.
+- Improving generalization across different datasets.
+- Experimenting with stronger data augmentation techniques.
+- Testing the model on additional external datasets.
+- Performing more extensive cross-validation and ablation studies.
+- Studying model efficiency and inference time.
+
+## Authors
 
 **Priyanshi Goel**  
 **Vanshika Goyal**
 
 Computer Science and Engineering (Artificial Intelligence)  
-Netaji Subhas University of Technology (NSUT), New Delhi, India.
+Netaji Subhas University of Technology (NSUT), New Delhi.
 
-## 📚 References
-
-1. Afriyie et al., *Robust Skin Lesion Classification Through Enhanced Minority Class Recognition Using Hybrid EfficientNet–Capsule Networks*, Intelligence-Based Medicine, 2026.
-2. Tan and Le, *EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks*, ICML, 2019.
-3. He et al., *Deep Residual Learning for Image Recognition*, CVPR, 2016.
-4. Tschandl et al., *The HAM10000 Dataset: A Large Collection of Multi-Source Dermatoscopic Images of Common Pigmented Skin Lesions*, Scientific Data, 2018.
-5. Selvaraju et al., *Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization*, ICCV, 2017.
-
----
-
-**Disclaimer:** This project is developed for academic and research purposes only. It is not a clinically validated diagnostic system and should not be used as a substitute for professional medical evaluation.
