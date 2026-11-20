@@ -19,7 +19,6 @@ The ensemble is evaluated against a re-implementation of EfficientCapsNet under 
 - Prevent data leakage using lesion-grouped, class-stratified dataset splitting.
 - Evaluate generalization using an independent ISIC 2019 external test set.
 - Compare the proposed ensemble against EfficientCapsNet and other ensemble configurations.
-- Use Grad-CAM to visualize model attention and improve interpretability.
 
 ## 🧠 Model Architecture
 
